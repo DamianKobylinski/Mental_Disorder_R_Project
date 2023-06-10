@@ -1,0 +1,63 @@
+---
+title: "Projekt"
+author: "Martyna Bielenda Jakub Chorzepa Damian Kobyliński"
+date: "2023-06-09"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Projekt
+
+```{r}
+
+library(ggplot2)
+library(dplyr)
+library(maps)
+
+dataframe = read.csv("dataframe.csv", sep = ";")
+
+#Podzial na smierci i wystepowanie ze wzgledu na kontynent, rocznik, sex
+
+# Ad.1
+### Podzial na smierci
+
+deaths = subset(dataframe, measure=="Deaths")
+only_number_of_deaths = subset(deaths, metric=="Number")
+
+ggplot(data = subset(only_number_of_deaths, location=="Oceania"), aes(x = cause,y=val)) +
+  geom_bar(stat = "identity")
+
+### Pokaznie danych na mapie swiata 
+
+### Przedstawienie danych chorób powodujących smierc w następnych x latach
+
+# Ad.2
+### Podzial na powszechne wystepowanie 
+
+
+
+prevelence = subset(dataframe, measure=="Prevalence")
+only_number_of_prevelence = subset(prevelence, metric=="Number")
+list_of_unique_area = unique(only_number_of_prevelence$location)
+
+split_area = unique(split(only_number_of_prevelence,only_number_of_prevelence$location))
+
+lapply(split_area,function(x){
+  title = toString(unique(x['location']))
+  ggplot(data = subset(x, location==x['location']), aes(x = cause,y=as.double(val),fill=cause))+
+  geom_bar(stat = "identity",width = 0.4, position = position_dodge(width=2))+
+  theme(axis.text.x = element_text(size = 4))+
+  ggtitle("Mental Disorders", title)+
+  xlab("Disorders")+
+  ylab("Occurrence")
+})
+
+
+### Pokaznie wedlug danych grup wiekowych
+
+### Przedstawienie progronz występowania danych chorób w następnych x latach
+
+```
