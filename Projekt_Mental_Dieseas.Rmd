@@ -15,11 +15,11 @@ knitr::opts_chunk$set(echo = TRUE)
 ```{r}
 ## Projekt
 
-install.packages("ggplot2")
-install.packages("dplyr")
-install.packages("fmsb")
-install.packages("RColorBrewer")
-install.packages("scales")
+#install.packages("ggplot2")
+#install.packages("dplyr")
+#install.packages("fmsb")
+#install.packages("RColorBrewer")
+#install.packages("scales")
 
 
 library(ggplot2)
@@ -138,7 +138,7 @@ prediction = lapply(prevelence_by_cause, function(x){
 # Podzial na smierci ze wzgledu na kontynent, rocznik, sex
 
 deaths = subset(dataframe, measure=="Deaths")
-only_number_of_deaths = subset(prevelence, metric=="Number")
+only_number_of_deaths = subset(deaths, metric=="Number")
 list_of_unique_area_death = unique(only_number_of_deaths$location)
 
 split_area_deaths =unique(split(only_number_of_deaths,only_number_of_deaths$location))
@@ -162,6 +162,32 @@ prevelence_sum_deaths = lapply(prevelence_by_age_deaths, function(x)
        { aggregate(val ~ cause, data =x, FUN = sum) }
 )
 
+# Ad. 4 ### Przedstawienie liczby zachorowań w przedziale czasu
+prevelence_by_year = split(only_number_of_prevelence, only_number_of_prevelence$year)
+prevelence_by_year_sum = lapply(prevelence_by_year, function(x)
+       { aggregate(val ~ cause, data = x, FUN = sum) }
+)
+
+# stworzenie list nazw lat
+yearNameList = names(prevelence_by_year_sum)
+
+# dodanie do każdej z ramek w prevelence_by_year roku
+# Map() jest podobne do funkcji lapply(), ale różni się tym, że pobiera argumenty z wielu list i zwraca wynik w postaci listy wynikowej.
+frames_with_year_list <- Map(cbind, prevelence_by_year_sum, year = yearNameList)
+
+# dodanie ramek w jedną ramkę
+# Funkcja do.call() pozwala na wywołanie funkcji, gdy argumenty funkcji są przechowywane w postaci listy lub wektora.
+diseases_sum_by_year = do.call(rbind, frames_with_year_list)
+head(diseases_sum_by_year)
+
+# wykres
+diseases_sum_by_year %>%
+  ggplot(aes(x=year, y=val, group=cause, color=cause)) +
+    geom_line() +
+    ggtitle("Wykres ilości zachorowań na zaburzenia względem roku") +
+    ylab("Ilość zachorowań") +
+    scale_y_continuous(labels = comma)
+    
 
 ```
 
