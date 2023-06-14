@@ -19,7 +19,7 @@ library(dplyr)
 
 dataframe = read.csv("dataframe.csv", sep = ";")
 
-# Podzial na smierci i wystepowanie ze wzgledu na kontynent, rocznik, sex
+# Podzial wystepowanie ze wzgledu na kontynent, rocznik, sex
 
 # Ad.1
 
@@ -35,8 +35,10 @@ lapply(split_area,function(x){ title = toString(unique(x['location']))
 ggplot(data = subset(x, location==x['location']), aes(x =
 cause,y=as.double(val),fill=cause))+ geom_bar(stat = "identity",width =
 0.4, position = position_dodge(width=2))+ theme(axis.text.x =
-element_text(size = 4))+ ggtitle("Mental Disorders", title)+
-xlab("Disorders")+ ylab("Occurrence") })
+element_text(size = 4))+ ggtitle("Mental Disorders prevelence in `", title)+
+xlab("Disorders")+ 
+ylab("Occurrence")
+})
 
 # Ad. 2
 
@@ -47,7 +49,9 @@ prevelence_sum = lapply(prevelence_by_age, function(x)
        { aggregate(val ~ cause, data =x, FUN = sum) }
 )
 
-# prevelence_sum$`10-14 years # Ad. 3 ### Przedstawienie progronz występowania danych chorób w następnych x latach 
+# prevelence_sum$`10-14 years 
+
+# Ad. 3 ### Przedstawienie progronz występowania danych chorób w następnych x latach 
 
 prevelence_by_year = split(only_number_of_prevelence, only_number_of_prevelence$year)
 prevelence_by_cause = lapply(prevelence_by_year, function(x) {split(x,x$cause)})
@@ -64,9 +68,28 @@ prediction = lapply(prevelence_by_cause, function(x){
     predicted_values = print(predict(lm_model, newdata = data.frame(age = x[[i]]$age))) 
     x[[i]] = cbind(x[[i]],predicted_values) 
     
-    title = toString(unique(x[[i]]['cause']))
     print(x[[i]])
-  } 
+  }
 })
+
+# Podzial na smierci ze wzgledu na kontynent, rocznik, sex
+
+deaths = subset(dataframe, measure=="Deaths")
+only_number_of_deaths = subset(prevelence, metric=="Number")
+list_of_unique_area_death = unique(only_number_of_deaths$location)
+
+split_area_deaths =unique(split(only_number_of_deaths,only_number_of_deaths$location))
+
+lapply(split_area_deaths,function(x){ 
+  title = toString(unique(x['location']))
+  ggplot(data = subset(x, location==x['location']), aes(x = cause,y=as.double(val),fill=cause))+ 
+  geom_bar(stat = "identity",width =0.4, position = position_dodge(width=2))+ 
+  theme(axis.text.x = element_text(size = 4))+ 
+  ggtitle("Mental Disorders deaths in ", title)+
+  xlab("Disorders")+ 
+  ylab("Occurrence") 
+})
+
+
 ```
 
