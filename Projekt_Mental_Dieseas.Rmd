@@ -186,8 +186,36 @@ diseases_sum_by_year %>%
     geom_line() +
     ggtitle("Wykres ilości zachorowań na zaburzenia względem roku") +
     ylab("Ilość zachorowań") +
+    # zamiana wartości w formacie naukowym na zwykły format
     scale_y_continuous(labels = comma)
     
+# Ad. 5 ### Liczba zachorowań ze względu na płeć
+prevelence_by_sex = split(only_number_of_prevelence, only_number_of_prevelence$sex)
+prevelence_by_sex_sum = lapply(prevelence_by_sex, function(x)
+       { aggregate(val ~ cause, data = x, FUN = sum) }
+)
+
+# lista nazw płci
+genderNameList = names(prevelence_by_sex_sum)
+
+# pętla po liście prevelence_by_sex generująca dwa wykresy zachorowań na zaburzenia względem płci
+for (i in 1:length(prevelence_by_sex_sum)) {
+  frame = prevelence_by_sex_sum[[i]]
+  gender = ''
+  if(genderNameList[i] == 'Female') gender = 'kobiet'
+  else gender = 'mężczyzn'
+  graph <- ggplot(frame, aes(x=cause, y=val, fill = cause)) + 
+      geom_bar(stat = "identity") +
+      coord_flip() +
+      xlab("Zaburzenie") + 
+      ylab("Ilość") +
+      scale_y_continuous(labels = comma) +
+      theme(legend.position = "none") +
+      ggtitle(paste("Liczba zachorowań wśród", gender))
+      
+      
+  print(graph)
+}
 
 ```
 
